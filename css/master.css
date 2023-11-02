@@ -1,0 +1,68 @@
+body{
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh; 
+	margin:0;
+}
+
+header{
+	background: rgba(100, 100, 100);
+	width: 100%;
+	top: 0;
+	padding-bottom: 10px;
+	padding-left: 10px;
+	min-height:50px;
+}
+
+footer{
+	background: rgba(100, 100, 100);
+	width: 100%;
+	bottom: 0;
+	padding-bottom: 10px;
+	padding-left: 10px;
+	min-height:50px;
+}
+
+footer span{
+	margin: 10px;
+}
+
+nav {
+	padding: 10px;
+}
+main nav {
+	padding: 10px;
+	background: rgba(120, 100, 100);
+}
+
+main{
+	height: 500px;
+	padding: 10px;
+	background: rgba(100, 100, 120, 0.5);
+	height: 100%;
+	flex: 1;
+}
+
+table {
+	margin-top: 10px;
+	background: rgba(100, 100, 120);
+}
+
+select {
+	margin: 10px;
+	outline: 3px solid rgb(90, 90, 90);
+	border-radius: 4px;
+}
+
+nav a{
+	margin-right: 10px;
+}
+
+a {
+	text-decoration: none;
+	color: black;
+}
+
+.error{
+	color: red;
+}
