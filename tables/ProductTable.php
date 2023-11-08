@@ -119,6 +119,7 @@ class ProductTable extends Table{
 	
 	public function create_filtrations(){
 		echo "<h2>Фильтрация по вводу с клавиатуры</h2>";
+		echo "<div class='filtration-keyboard'>";
 		echo "<h3>Фильтрация по названию товара</h3>";
 		$this->create_filtration_block_name();
 		echo "</br>";
@@ -130,6 +131,7 @@ class ProductTable extends Table{
 		echo "</br>";
 		echo "<h3>Фильтрация по цене (получение значений меньше введенного)</h3>";
 		$this->create_filtration_block_price();
+		echo "</div>";
 	}
 
 	public function create_filtration_block_name(){
@@ -208,7 +210,7 @@ class ProductTable extends Table{
 		echo "
 			<form class='form-filtration' method='get' action=''>
 				<div class='form-group'>
-					<label for=''>Брэнд</label>
+					<label for=''>Бренд</label>
 					<input type='text' class='form-control' id='filtration-brand-and-category-brand' name='filtration-brand-and-category-brand'>
 				</div>
 				<div class='form-group'>
