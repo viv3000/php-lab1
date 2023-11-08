@@ -21,10 +21,13 @@
 			case "Фильтровать по цене":
 				$table->filtration_from_price = $_GET['filtration-price'];
 				break;
-			case "Фильтровать по бренду и категории":
-				$table->filtration_from_brand_and_category = array(
-					$_GET['filtration-brand-and-category-brand'], 
-					$_GET['filtration-brand-and-category-category']);
+			case "Фильтровать по бренду и категории из списка":
+				$table->filtration_from_brand_and_category_select = array(
+					$_GET['filtration-brand-and-category-brand-select'], 
+					$_GET['filtration-brand-and-category-category-select']);
+				break;
+			case "Фильтровать по бренду из списка":
+				$table->filtration_from_brand_select = $_GET['filtration-brand-select'];
 				break;
 		}
 	}
