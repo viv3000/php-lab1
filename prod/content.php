@@ -25,6 +25,12 @@
 				$table->filtration_from_date_start = $_GET['filtration-date-start'];
 				$table->filtration_from_date_end   = $_GET['filtration-date-end'];
 				break;
+			case "Фильтровать по ФИО консультанта из списка":
+				$table->filtration_from_FIO_select = $_GET['filtration-fio-select'];
+				break;
+			case "Фильтровать по названию товара из списка":
+				$table->filtration_from_name_select = $_GET['filtration-name-select'];
+				break;
 		}
 	}
 	echo "<main> ";

@@ -9,6 +9,9 @@ class ProdTable extends Table{
 	public $filtration_from_date_start = '0000-00-00';
 	public $filtration_from_date_end = '9999-11-11';
 
+	public $filtration_from_name_select = '';
+	public $filtration_from_fio_select = '';
+
 	public function __construct(){
 		$this->table_name = "prod";
 		$this->id_field = "id_prod";
@@ -150,6 +153,14 @@ class ProdTable extends Table{
 		echo "<h3>Фильтрация по промежутку между датами</h3>";
 		$this->create_filtration_block_date();
 		echo "</div>";
+
+		echo "<h2>Фильтрация по значению из списка</h2>";
+		echo "<div class='filtration-keyboard'>";
+		echo "<h3>Фильтрация по ФИО консультанта</h3>";
+		$this->create_filtration_block_FIO_select();
+		echo "<h3>Фильтрация по названию товара</h3>";
+		$this->create_filtration_block_name_select();
+		echo "</div>";
 	}
 
 	public function create_filtration_block_FIO(){
@@ -241,6 +252,130 @@ class ProdTable extends Table{
 			}
 		}
 		echo "</div>";
+	}
+
+	public function create_name_select($name){
+		$connection = $this->createConnection();
+		$rows = $connection->query("select * from cosmetic_shop.product order by name_product ASC");
+
+		echo "<select class='btn' name='$name'>";
+		if($rows->num_rows > 0){
+			while($row = $rows->fetch_assoc()){
+				echo "
+				<option value='".$row['id_product']."'>"
+					.$row['name_product']."
+				</option>";
+			}
+		}
+		echo "</select>";
+	}
+
+	public function create_FIO_select($name){
+		$connection = $this->createConnection();
+		$rows = $connection->query("select * from cosmetic_shop.consultant order by consultant_fio ASC");
+
+		echo "<select class='btn' name='$name'>";
+		if($rows->num_rows > 0){
+			while($row = $rows->fetch_assoc()){
+				echo "
+				<option value='".$row['id_consultant']."'>"
+					.$row['consultant_fio']."
+				</option>";
+			}
+		}
+		echo "</select>";
+	}
+
+	public function create_filtration_block_FIO_select(){
+		echo "
+			<form class='form-filtration' method='get' action=''>
+					<label for=''>ФИО консультанта</label>";
+			$this->create_FIO_select("filtration-fio-select");
+		echo "
+				<input type='submit' class='btn btn-primary' name='submit' value='Фильтровать по ФИО консультанта из списка'>
+			</form>";
+
+		echo "
+			<div class='container my-table'>
+				<div class='row row-table header-table'>
+					<div class='col-3'><b>Название товара</b></div>
+					<div class='col-3'><b>Категория</b></div>
+					<div class='col-2'><b>Дата продажи</b></div>
+					<div class='col-2'><b>Количество</b></div>
+				</div>";
+		$brands = $this->get_table_from_FIO_select($this->filtration_from_FIO_select);
+		if($brands->num_rows > 0){
+			while($row = $brands->fetch_assoc()){
+				echo "
+					<div class='row row-table'>
+						<div class='col-3'>".$row["name_product"]."</div>
+						<div class='col-3'>".$row["name_category"]."</div>
+						<div class='col-2'>".$row["data_prod"]."</div>
+						<div class='col-2'>".$row["kol"]."</div>
+					</div>";
+			}
+		}
+		echo "</div>";
+	}
+
+	public function create_filtration_block_name_select(){
+		echo "
+			<form class='form-filtration' method='get' action=''>
+					<label for=''>Название товара</label>";
+			$this->create_name_select("filtration-name-select");
+		echo "
+				<input type='submit' class='btn btn-primary' name='submit' value='Фильтровать по названию товара из списка'>
+			</form>";
+
+		echo "
+			<div class='container my-table'>
+				<div class='row row-table header-table'>
+					<div class='col-3'><b>Название товара</b></div>
+					<div class='col-3'><b>ФИО консультанта</b></div>
+					<div class='col-2'><b>Дата продажи</b></div>
+					<div class='col-2'><b>Количество</b></div>
+				</div>";
+		$brands = $this->get_table_from_name_select($this->filtration_from_name_select);
+		if($brands->num_rows > 0){
+			while($row = $brands->fetch_assoc()){
+				echo "
+					<div class='row row-table'>
+						<div class='col-3'>".$row["name_product"]."</div>
+						<div class='col-3'>".$row["consultant_fio"]."</div>
+						<div class='col-2'>".$row["data_prod"]."</div>
+						<div class='col-2'>".$row["kol"]."</div>
+					</div>";
+			}
+		}
+		echo "</div>";
+	}
+
+	public function get_table_from_FIO_select($fio){
+		$connection = $this->createConnection();
+		return $connection->query("
+			SELECT 
+				prod.id_prod, prod.data_prod, prod.time_prod, prod.kol, 
+				consultant.consultant_fio, 
+			    product.name_product, product.price_product,
+                category.name_category
+			FROM cosmetic_shop.prod, cosmetic_shop.consultant, cosmetic_shop.product, cosmetic_shop.category
+			WHERE prod.id_product = product.id_product
+			AND   prod.id_consultant = consultant.id_consultant
+            and   category.id_category = product.id_category
+			AND   prod.id_consultant = '$fio'");
+	}
+
+	public function get_table_from_name_select($name){
+		$connection = $this->createConnection();
+		return $connection->query("
+			SELECT 
+				prod.id_prod, prod.data_prod, prod.time_prod, prod.kol, 
+				consultant.consultant_fio, 
+			    product.name_product, product.price_product
+			FROM cosmetic_shop.prod, cosmetic_shop.consultant, cosmetic_shop.product
+			WHERE prod.id_product = product.id_product
+			AND   prod.id_consultant = consultant.id_consultant
+			AND   prod.id_product = '$name'");
 	}
 
 	public function get_table_from_date($date_start, $date_end){
