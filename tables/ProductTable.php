@@ -63,7 +63,7 @@ class ProductTable extends Table{
 		)->num_rows > 0;
 	}
 
-	public function create_page(){
+	public function create_page($sort_field = null){
 		echo '
 			<form method="get" action="">
 				<div class="form-group">
@@ -94,10 +94,30 @@ class ProductTable extends Table{
 				<br/>
 				<br/>';
 		$this->create_buttons();
-		echo '
+		echo "
 			</form>
-		';
-		$this->create_table($this->get_table());
+			<form action='' method='GET'>
+				<select name='sort-field' class='btn'>
+					<option>Название товара</option>
+					<option>Название бренда</option>
+					<option>Название категории</option>
+				</select>
+				<button type='submit' class='btn btn-primary'>Сортировать</button>
+			</form>
+		";
+		switch ($sort_field){
+			case 'Название товара':
+				$this->create_table($this->get_table('name_product'));
+				break;
+			case 'Название бренда':
+				$this->create_table($this->get_table('name_brand'));
+				break;
+			case 'Название категории':
+				$this->create_table($this->get_table('name_category'));
+				break;
+			default:
+				$this->create_table($this->get_table());
+		}
 		$this->create_filtrations();
 	}
 
@@ -108,7 +128,7 @@ class ProductTable extends Table{
 				<input type="submit" class="btn btn-primary" name="submit" value="Удалить", onclick="return confirm(\'Вы действительно хотите удалить запись?\')">';
 	}
 
-	public function get_table(): mysqli_result{
+	public function get_table($sort_field = 'name_product'): mysqli_result{
 		$connection = $this->createConnection();
 		return $connection->query("
 			SELECT 
@@ -117,7 +137,7 @@ class ProductTable extends Table{
 			FROM cosmetic_shop.product, cosmetic_shop.brand, cosmetic_shop.color, cosmetic_shop.category
 			where product.id_brand = brand.id_brand
 			and product.id_category = category.id_category
-			and product.id_color = color.id_color");
+			and product.id_color = color.id_color order by $sort_field ASC");
 	}
 	
 	public function create_filtrations(){

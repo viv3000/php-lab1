@@ -34,7 +34,7 @@
 		}
 	}
 	echo "<main> ";
-	$table->create_page();
+	$table->create_page($_GET['sort-field']);
 	echo "</main>";
 ?>
 
