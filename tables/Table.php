@@ -11,8 +11,8 @@ class Table{
 	}
 
 	public function createConnection(){
-		//$connection = new mysqli("127.0.0.1:3306", "vi", "dbrnjh", "cosmetic_shop");
-		$connection = new mysqli("127.0.0.1:3306", "root", "root", "cosmetic_shop");
+		$connection = new mysqli("127.0.0.1:3306", "vi", "dbrnjh", "cosmetic_shop");
+		//$connection = new mysqli("127.0.0.1:3306", "root", "root", "cosmetic_shop");
 		if ($connection->connect_error){
 			echo '<h3 class="error">Не удалось подключиться к базе банных</h3>';
 		} 

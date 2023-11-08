@@ -12,15 +12,23 @@
 			case "Удалить":
 				$table->delete($_GET["id_product"]);
 				break;
+			case "Фильтровать по названию":	
+				$table->filtration_from_name = $_GET['filtration-title'];
+				break;
+			case "Фильтровать по категории":
+				$table->filtration_from_category = $_GET['filtration-category'];
+				break;
+			case "Фильтровать по цене":
+				$table->filtration_from_price = $_GET['filtration-price'];
+				break;
+			case "Фильтровать по бренду и категории":
+				$table->filtration_from_brand_and_category = array(
+					$_GET['filtration-brand-and-category-brand'], 
+					$_GET['filtration-brand-and-category-category']);
+				break;
 		}
 	}
 	echo "<main> ";
 	$table->create_page();
 	echo "</main>";
 ?>
-
-
-
-
-
-
