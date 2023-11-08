@@ -4,6 +4,10 @@ include_once('ProductTable.php');
 include_once('ConsultantTable.php');
 
 class ProdTable extends Table{
+	
+	public $filtration_from_FIO = '';
+	public $filtration_from_date_start = '0000-00-00';
+	public $filtration_from_date_end = '9999-11-11';
 
 	public function __construct(){
 		$this->table_name = "prod";
@@ -91,6 +95,7 @@ class ProdTable extends Table{
 			</form>
 		';
 		$this->create_table();
+		$this->create_filtrations();
 	}
 	
 	public function create_table(){
@@ -134,6 +139,122 @@ class ProdTable extends Table{
 		echo '
 					</tbody>
 				</table>';
+	}
+	
+	public function create_filtrations(){
+		echo "<h2>Фильтрация по вводу с клавиатуры</h2>";
+		echo "<div class='filtration-keyboard'>";
+		echo "<h3>Фильтрация по ФИО консультанта</h3>";
+		$this->create_filtration_block_FIO();
+		echo "</br>";
+		echo "<h3>Фильтрация по промежутку между датами</h3>";
+		$this->create_filtration_block_date();
+		echo "</div>";
+	}
+
+	public function create_filtration_block_FIO(){
+		echo "
+			<form class='form-filtration' method='get' action=''>
+				<div class='form-group'>
+					<label for=''>ФИО консультанта</label>
+					<input type='text' class='form-control' id='filtration-fio' name='filtration-fio'>
+				</div>
+				</br>
+				<input type='submit' class='btn btn-primary' name='submit' value='Фильтровать по ФИО консультанта'>
+			</form>";
+
+		echo "
+			<div class='container my-table'>
+				<div class='row row-table header-table'>
+					<div class='col-3'><b>ФИО консультанта</b></div>
+					<div class='col-3'><b>Название товара</b></div>
+					<div class='col-2'><b>Дата продажи</b></div>
+					<div class='col-2'><b>Количество</b></div>
+				</div>";
+		$prods = $this->get_table_from_FIO($this->filtration_from_FIO);
+		if($prods->num_rows > 0){
+			while($row = $prods->fetch_assoc()){
+				echo "
+					<div class='row row-table'>
+						<div class='col-3'>".$row["consultant_fio"]."</div>
+						<div class='col-3'>".$row["name_product"]."</div>
+						<div class='col-2'>".$row["data_prod"]."</div>
+						<div class='col-2'>".$row["kol"]."</div>
+					</div>";
+			}
+		}
+		echo "</div>";
+	}
+
+	public function get_table_from_FIO($fio){
+		$connection = $this->createConnection();
+		return $connection->query("
+			SELECT 
+				prod.id_prod, prod.data_prod, prod.time_prod, prod.kol, 
+				consultant.consultant_fio, 
+			    product.name_product
+			FROM cosmetic_shop.prod, cosmetic_shop.consultant, cosmetic_shop.product
+			WHERE prod.id_product = product.id_product
+			AND   prod.id_consultant = consultant.id_consultant
+			AND   consultant.consultant_fio RLIKE '$fio'");
+	}
+
+
+	public function create_filtration_block_date(){
+		echo "
+			<form class='form-filtration' method='get' action=''>
+				<div class='form-group'>
+					<label for=''>Дата начала</label>
+					<input type='date' class='form-control' id='filtration-date-start' name='filtration-date-start'>
+				</div>
+				<div class='form-group'>
+					<label for='data_prod'>Дата конца</label>
+					<input type='date' class='form-control' id='filtration-date-end' name='filtration-date-end'>
+				</div>
+				</br>
+				<input type='submit' class='btn btn-primary' name='submit' value='Фильтровать по дате'>
+			</form>";
+
+		echo "
+			<div class='container my-table'>
+				<div class='row row-table header-table'>
+					<div class='col-3'><b>ФИО консультанта</b></div>
+					<div class='col-3'><b>Название товара</b></div>
+					<div class='col-2'><b>Дата продажи</b></div>
+					<div class='col-2'><b>Цена товара</b></div>
+					<div class='col-2'><b>Количество</b></div>
+				</div>";
+		$prods = $this->get_table_from_date($this->filtration_from_date_start, $this->filtration_from_date_end);
+		if ($this->filtration_from_date_start > $this->filtration_from_date_end){
+			echo "<h3 class='error'>Дата начала должна быть меньше чем дата конца!</h3> <div/>";
+			return;
+		}else if($prods->num_rows > 0){
+			while($row = $prods->fetch_assoc()){
+				echo "
+					<div class='row row-table'>
+						<div class='col-3'>".$row["consultant_fio"]."</div>
+						<div class='col-3'>".$row["name_product"]."</div>
+						<div class='col-2'>".$row["data_prod"]."</div>
+						<div class='col-2'>".$row["price_product"]."</div>
+						<div class='col-2'>".$row["kol"]."</div>
+					</div>";
+			}
+		}
+		echo "</div>";
+	}
+
+	public function get_table_from_date($date_start, $date_end){
+		$connection = $this->createConnection();
+		return $connection->query("
+			SELECT 
+				prod.id_prod, prod.data_prod, prod.time_prod, prod.kol, 
+				consultant.consultant_fio, 
+			    product.name_product, product.price_product
+			FROM cosmetic_shop.prod, cosmetic_shop.consultant, cosmetic_shop.product
+			WHERE prod.id_product = product.id_product
+			AND   prod.id_consultant = consultant.id_consultant
+			AND   prod.data_prod > '$date_start'
+			AND   prod.data_prod < '$date_end'");
 	}
 
 	public function create_select(){

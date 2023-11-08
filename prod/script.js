@@ -5,7 +5,6 @@ function chekInput() {
         alert("Необходимо заполнить все поля");
 		return false;
 	} else {
-        alert("asdf");
 		return true;
 	}
 }

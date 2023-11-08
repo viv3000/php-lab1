@@ -14,6 +14,17 @@
 			case "Удалить":
 				$table->delete($_GET["id_prod"]);
 				break;
+			case "Фильтровать по ФИО консультанта":
+				$table->filtration_from_FIO = $_GET['filtration-fio'];
+				break;
+			case "Фильтровать по дате":
+				if ($_GET['filtration-date-start']=='' or $_GET['filtration-date-end']==''){
+					echo "<script> alert('Необходимо заполнить все поля')</script>";
+					break;
+				}
+				$table->filtration_from_date_start = $_GET['filtration-date-start'];
+				$table->filtration_from_date_end   = $_GET['filtration-date-end'];
+				break;
 		}
 	}
 	echo "<main> ";

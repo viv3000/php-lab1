@@ -330,8 +330,6 @@ class ProductTable extends Table{
 			and name_product RLIKE '$name'");
 	}
 
-	public function create_filtration_block_FIO(){}
-	public function create_filtration_block_date(){}
 	
 	public function create_table(mysqli_result $brands = null){
 		echo '
