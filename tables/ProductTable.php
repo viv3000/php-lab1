@@ -3,6 +3,7 @@ include_once('ColorTable.php');
 include_once('BrandTable.php');
 include_once('CategoryTable.php');
 include_once('Table.php');
+
 class ProductTable extends Table{
 
 	public $filtration_from_name = '';
@@ -117,9 +118,17 @@ class ProductTable extends Table{
 	}
 	
 	public function create_filtrations(){
+		echo "<h2>Фильтрация по вводу с клавиатуры</h2>";
+		echo "<h3>Фильтрация по названию товара</h3>";
 		$this->create_filtration_block_name();
+		echo "</br>";
+		echo "<h3>Фильтрация по названию категории</h3>";
 		$this->create_filtration_block_category();
+		echo "</br>";
+		echo "<h3>Фильтрация по названию категории и бренда</h3>";
 		$this->create_filtration_block_brand_and_category();
+		echo "</br>";
+		echo "<h3>Фильтрация по цене (получение значений меньше введенного)</h3>";
 		$this->create_filtration_block_price();
 	}
 
@@ -373,4 +382,5 @@ class ProductTable extends Table{
 		echo "</select>";
 	}
 }
+
 ?>

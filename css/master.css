@@ -11,7 +11,7 @@ header{
 	top: 0;
 	padding-bottom: 10px;
 	padding-left: 10px;
-	min-height:50px;
+	min-height: 50px;
 }
 
 footer{
@@ -20,7 +20,8 @@ footer{
 	bottom: 0;
 	padding-bottom: 10px;
 	padding-left: 10px;
-	min-height:50px;
+	min-height: 50px;
+	min-height: 60px;
 }
 
 footer span{
@@ -88,6 +89,8 @@ a {
 	margin: 0;
 	padding: 0;
 	margin-top: 2px;
+	padding-top: 5px;
+	padding-bottom: 5px;
 }
 
 .header-table{
