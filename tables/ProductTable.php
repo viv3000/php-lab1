@@ -19,7 +19,7 @@ class ProductTable extends Table{
 		$this->id_field = "id_product";
 	}
 
-	public function insert($title, $id_brand = null, $id_category = null, $id_color = null, $weight = null, $price_product = null){
+	public function insert($title, $id_brand = null, $id_category = null, $id_color = null, $weight = null, $price_product = null, $image = null){
 		$connection = $this->createConnection();
 		if ($connection->connect_error){
 			echo '<h3 class="error">Не удалось подключиться к базе банных</h3>';
@@ -27,11 +27,11 @@ class ProductTable extends Table{
 			echo '<h3 class="error">Невозможно вставить дублирующую запись!</h3>';
 		} else $connection->query("INSERT 
 			INTO `cosmetic_shop`.`product` 
-				   (`name_product`,  `id_brand`,  `id_category`,  `id_color`,  `weight`,  `price_product`) 
-			VALUES ('$title', '$id_brand', '$id_category', '$id_color', '$weight', '$price_product')");
+				   (`name_product`,  `id_brand`,  `id_category`,  `id_color`,  `weight`,  `price_product`, `image`) 
+			VALUES ('$title', '$id_brand', '$id_category', '$id_color', '$weight', '$price_product', '$image')");
 	}
 
-	public function update($id, $title, $id_brand = null, $id_category = null, $id_color = null, $weight = null, $price_product = null){
+	public function update($id, $title, $id_brand = null, $id_category = null, $id_color = null, $weight = null, $price_product = null, $image = null){
 		$connection = $this->createConnection();
 		if ($connection->connect_error){
 			echo '<h3 class="error">Не удалось подключиться к базе банных</h3>';
@@ -43,10 +43,11 @@ class ProductTable extends Table{
 				SET 
 				`name_product` = '$title', 
 				`id_brand`     = '$id_brand', 
-				`id_cautoategory`  = '$id_category', 
+				`id_category`  = '$id_category', 
 				`id_color` = '$id_color',
 				`weight` = '$weight',
-				`price_product` = '$price_product' 
+				`price_product` = '$price_product',
+				`image` = '$image'
 				WHERE (`id_product` = '$id')");
 	}
 
@@ -65,7 +66,7 @@ class ProductTable extends Table{
 
 	public function create_page($sort_field = null){
 		echo '
-			<form method="get" action="">
+			<form method="post" action="" enctype="multipart/form-data">
 				<div class="form-group">
 					<label for="data_prod">Название</label>
 					<input type="text" class="form-control" id="name_product" name="name_product">
@@ -77,6 +78,10 @@ class ProductTable extends Table{
 				<div class="form-group" style="width: 100px;">
 					<label for="weight">Вес</label>
 					<input value="0" min="0" max="999" onkeypress="return event.charCode >= 48 && event.charCode <= 57" type="number" class="form-control" id="weight" name="weight"/>
+				</div>
+				<div class="form-group">
+					<label for="">Изображение</label>
+					<input type="file" class="form-control" accept="image/jpeg, image/png" id="image" name="image">
 				</div>
 				<br/>
 		';
@@ -96,7 +101,7 @@ class ProductTable extends Table{
 		$this->create_buttons();
 		echo "
 			</form>
-			<form action='' method='GET'>
+			<form action='' method='POST'>
 				<select name='sort-field' class='btn'>
 					<option>Название товара</option>
 					<option>Название бренда</option>
@@ -132,7 +137,7 @@ class ProductTable extends Table{
 		$connection = $this->createConnection();
 		return $connection->query("
 			SELECT 
-				product.id_product, product.name_product, product.weight, product.price_product, 
+				product.id_product, product.name_product, product.weight, product.price_product, product.image,
 				brand.name_brand, color.name_color, category.name_category 
 			FROM cosmetic_shop.product, cosmetic_shop.brand, cosmetic_shop.color, cosmetic_shop.category
 			where product.id_brand = brand.id_brand
@@ -166,7 +171,7 @@ class ProductTable extends Table{
 
 	public function create_filtration_block_name(){
 		echo "
-			<form class='form-filtration' method='get' action=''>
+			<form class='form-filtration' method='POST' action=''>
 				<div class='form-group'>
 					<label for='data_prod'>Название</label>
 					<input type='text' class='form-control' id='filtration-title' name='filtration-title'>
@@ -202,7 +207,7 @@ class ProductTable extends Table{
 
 	public function create_filtration_block_category(){
 		echo "
-			<form class='form-filtration' method='get' action=''>
+			<form class='form-filtration' method='POST' action=''>
 				<div class='form-group'>
 					<label for='data_prod'>Категория</label>
 					<input type='text' class='form-control' id='filtration-category' name='filtration-category'>
@@ -238,7 +243,7 @@ class ProductTable extends Table{
 
 	public function create_filtration_block_brand_and_category(){
 		echo "
-			<form class='form-filtration' method='get' action=''>
+			<form class='form-filtration' method='POST' action=''>
 				<div class='form-group'>
 					<label for=''>Бренд</label>
 					<input type='text' class='form-control' id='filtration-brand-and-category-brand' name='filtration-brand-and-category-brand'>
@@ -275,7 +280,7 @@ class ProductTable extends Table{
 	}
 	public function create_filtration_block_price(){
 		echo "
-			<form class='form-filtration' method='get' action=''>
+			<form class='form-filtration' method='POST' action=''>
 				<div class='form-group'>
 					<label for='data_prod'>Цена</label>
 					<input value=0 type='number' min='0' max='999999' onkeypress='return event.charCode >= 48 && event.charCode <= 57' class='form-control' id='filtration-price' name='filtration-price'>
@@ -343,7 +348,7 @@ class ProductTable extends Table{
 
 	public function create_filtration_block_brand_select(){
 		echo "
-			<form class='form-filtration' method='get' action=''>
+			<form class='form-filtration' method='POST' action=''>
 					<label for=''>Бренд</label>";
 			$this->create_brand_select("filtration-brand-select");
 		echo "
@@ -375,7 +380,7 @@ class ProductTable extends Table{
 
 	public function create_filtration_block_brand_and_category_select(){
 		echo "
-			<form class='form-filtration' method='get' action=''>
+			<form class='form-filtration' method='POST' action=''>
 					<label for=''>Бренд</label>";
 			$this->create_brand_select("filtration-brand-and-category-brand-select");
 			echo "
@@ -498,13 +503,13 @@ class ProductTable extends Table{
 			<table class="table">
 					<thead>
 					<tr>
-						<th scope="col">id_product</th>
-						<th scope="col">name_product</th>
-						<th scope="col">weight</th>
-						<th scope="col">price_product</th>
-						<th scope="col">name_brand</th>
-						<th scope="col">name_color</th>
-						<th scope="col">name_category</th>
+						<th scope="col">Название</th>
+						<th scope="col">Вес</th>
+						<th scope="col">Цена</th>
+						<th scope="col">Бренд</th>
+						<th scope="col">Цвет</th>
+						<th scope="col">Категория</th>
+						<th scope="col">Изображение</th>
 					</tr>
 					</thead>
 					<tbody>';
@@ -513,19 +518,23 @@ class ProductTable extends Table{
 			while($row = $brands->fetch_assoc()){
 				echo '
 					<tr>
-						<td>'.$row["id_product"].'</td>
 						<td>'.$row["name_product"].'</td>
 						<td>'.$row["weight"].'</td>
 						<td>'.$row["price_product"].'</td>
 						<td>'.$row["name_brand"].'</td>
 						<td>'.$row["name_color"].'</td>
 						<td>'.$row["name_category"].'</td>
+						<td><img src="data:image/jpg;charset=utf8;base64, '.$row['image'].'" /></td>
 					</tr>';
 			}
 		}
 		echo '
 					</tbody>
 				</table>';
+	}
+
+	public function get_image_by_id($id){
+		return "../images/$id.jpg";
 	}
 
 	public function create_select(){
