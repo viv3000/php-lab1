@@ -5,7 +5,7 @@ include_once('CategoryTable.php');
 include_once('Table.php');
 
 class ProductTable extends Table{
-
+	public $POST;
 	public $filtration_from_name = '';
 	public $filtration_from_category = '';
 	public $filtration_from_brand_and_category = array('','');
@@ -49,6 +49,27 @@ class ProductTable extends Table{
 				`price_product` = '$price_product',
 				`image` = '$image'
 				WHERE (`id_product` = '$id')");
+	}
+
+	public function delete($id){
+		$connection = $this->createConnection();
+		if ($connection->connect_error){
+			echo '<h3 class="error">Не удалось подключиться к базе банных</h3>';
+		} else if($id == null){
+			echo '<h3 class="error">Невозможно удалить несуществующую запись!</h3>';
+		} else if($this->have_relations($connection, $id)){
+			echo '<h3 class="error">Невозможно удалить запись, связанную с другой! (Связи в таблице продажи)</h3>';
+		} else $connection->query("
+				DELETE FROM 
+				cosmetic_shop.".$this->table_name." 
+				WHERE (".$this->id_field." = '".$id."');");
+	}
+
+	private function have_relations($connection, $id){
+		return $connection->query("
+			SELECT * FROM cosmetic_shop.prod
+			where id_product = '$id'"
+		)->num_rows > 0;
 	}
 
 	private function have_duplicate($connection, $title, $id_brand, $id_category, $id_color, $weight, $price_product){
@@ -189,17 +210,19 @@ class ProductTable extends Table{
 					<div class='col-2'><b>Вес</b></div>
 					<div class='col-2'><b>Цена</b></div>
 				</div>";
-		$brands = $this->get_table_from_name($this->filtration_from_name);
-		if($brands->num_rows > 0){
-			while($row = $brands->fetch_assoc()){
-				echo "
-					<div class='row row-table'>
-						<div class='col-3'>".$row["name_product"]."</div>
-						<div class='col-3'>".$row["name_brand"]."</div>
-						<div class='col-2'>".$row["name_color"]."</div>
-						<div class='col-2'>".$row["weight"]."</div>
-						<div class='col-2'>".$row["price_product"]."</div>
-					</div>";
+		if ($this->POST['submit'] == 'Фильтровать по названию'){
+			$brands = $this->get_table_from_name($this->filtration_from_name);
+			if($brands->num_rows > 0){
+				while($row = $brands->fetch_assoc()){
+					echo "
+						<div class='row row-table'>
+							<div class='col-3'>".$row["name_product"]."</div>
+							<div class='col-3'>".$row["name_brand"]."</div>
+							<div class='col-2'>".$row["name_color"]."</div>
+							<div class='col-2'>".$row["weight"]."</div>
+							<div class='col-2'>".$row["price_product"]."</div>
+						</div>";
+				}
 			}
 		}
 		echo "</div>";
@@ -225,17 +248,19 @@ class ProductTable extends Table{
 					<div class='col-2'><b>Вес</b></div>
 					<div class='col-2'><b>Цена</b></div>
 				</div>";
-		$brands = $this->get_table_from_category($this->filtration_from_category);
-		if($brands->num_rows > 0){
-			while($row = $brands->fetch_assoc()){
-				echo "
-					<div class='row row-table'>
-						<div class='col-3'>".$row["name_product"]."</div>
-						<div class='col-3'>".$row["name_brand"]."</div>
-						<div class='col-2'>".$row["name_color"]."</div>
-						<div class='col-2'>".$row["weight"]."</div>
-						<div class='col-2'>".$row["price_product"]."</div>
-					</div>";
+		if ($this->POST['submit'] == 'Фильтровать по категории'){
+			$brands = $this->get_table_from_category($this->filtration_from_category);
+			if($brands->num_rows > 0){
+				while($row = $brands->fetch_assoc()){
+					echo "
+						<div class='row row-table'>
+							<div class='col-3'>".$row["name_product"]."</div>
+							<div class='col-3'>".$row["name_brand"]."</div>
+							<div class='col-2'>".$row["name_color"]."</div>
+							<div class='col-2'>".$row["weight"]."</div>
+							<div class='col-2'>".$row["price_product"]."</div>
+						</div>";
+				}
 			}
 		}
 		echo "</div>";
@@ -263,17 +288,19 @@ class ProductTable extends Table{
 					<div class='col-2'><b>Цвет</b></div>
 					<div class='col-2'><b>Цена</b></div>
 				</div>";
-		$brands = $this->get_table_from_brand_and_category(
-			$this->filtration_from_brand_and_category[0],
-			$this->filtration_from_brand_and_category[1]);
-		if($brands->num_rows > 0){
-			while($row = $brands->fetch_assoc()){
-				echo "
-					<div class='row row-table'>
-						<div class='col-3'>".$row["name_product"]."</div>
-						<div class='col-2'>".$row["name_color"]."</div>
-						<div class='col-2'>".$row["price_product"]."</div>
-					</div>";
+		if ($this->POST['submit'] == 'Фильтровать по бренду и категории'){
+			$brands = $this->get_table_from_brand_and_category(
+				$this->filtration_from_brand_and_category[0],
+				$this->filtration_from_brand_and_category[1]);
+			if($brands->num_rows > 0){
+				while($row = $brands->fetch_assoc()){
+					echo "
+						<div class='row row-table'>
+							<div class='col-3'>".$row["name_product"]."</div>
+							<div class='col-2'>".$row["name_color"]."</div>
+							<div class='col-2'>".$row["price_product"]."</div>
+						</div>";
+				}
 			}
 		}
 		echo "</div>";
@@ -283,7 +310,7 @@ class ProductTable extends Table{
 			<form class='form-filtration' method='POST' action=''>
 				<div class='form-group'>
 					<label for='data_prod'>Цена</label>
-					<input value=0 type='number' min='0' max='999999' onkeypress='return event.charCode >= 48 && event.charCode <= 57' class='form-control' id='filtration-price' name='filtration-price'>
+					<input type='number' value='0' min='0' max='999999' onkeypress='return event.charCode >= 48 && event.charCode <= 57' class='form-control' id='filtration-price' name='filtration-price'>
 				</div>
 				</br>
 				<input type='submit' class='btn btn-primary' name='submit' value='Фильтровать по цене'>
@@ -297,16 +324,18 @@ class ProductTable extends Table{
 					<div class='col-3'><b>Цвет</b></div>
 					<div class='col-3'><b>Цена</b></div>
 				</div>";
-		$brands = $this->get_table_from_price($this->filtration_from_price);
-		if($brands->num_rows > 0){
-			while($row = $brands->fetch_assoc()){
-				echo "
-					<div class='row row-table'>
-						<div class='col-3'>".$row["name_product"]."</div>
-						<div class='col-3'>".$row["name_brand"]."</div>
-						<div class='col-3'>".$row["name_color"]."</div>
-						<div class='col-3'>".$row["price_product"]."</div>
-					</div>";
+		if ($this->POST['submit'] == 'Фильтровать по цене'){
+			$brands = $this->get_table_from_price($this->filtration_from_price);
+			if($brands->num_rows > 0){
+				while($row = $brands->fetch_assoc()){
+					echo "
+						<div class='row row-table'>
+							<div class='col-3'>".$row["name_product"]."</div>
+							<div class='col-3'>".$row["name_brand"]."</div>
+							<div class='col-3'>".$row["name_color"]."</div>
+							<div class='col-3'>".$row["price_product"]."</div>
+						</div>";
+				}
 			}
 		}
 		echo "</div>";
@@ -362,15 +391,17 @@ class ProductTable extends Table{
 					<div class='col-3'><b>Цвет</b></div>
 					<div class='col-2'><b>Цена</b></div>
 				</div>";
-		$brands = $this->get_table_from_brand_select($this->filtration_from_brand_select);
-		if($brands->num_rows > 0){
-			while($row = $brands->fetch_assoc()){
-				echo "
-					<div class='row row-table'>
-						<div class='col-3'>".$row["name_product"]."</div>
-						<div class='col-3'>".$row["name_color"]."</div>
-						<div class='col-2'>".$row["price_product"]."</div>
-					</div>";
+		if ($this->POST['submit'] == 'Фильтровать по бренду из списка'){
+			$brands = $this->get_table_from_brand_select($this->filtration_from_brand_select);
+			if($brands->num_rows > 0){
+				while($row = $brands->fetch_assoc()){
+					echo "
+						<div class='row row-table'>
+							<div class='col-3'>".$row["name_product"]."</div>
+							<div class='col-3'>".$row["name_color"]."</div>
+							<div class='col-2'>".$row["price_product"]."</div>
+						</div>";
+				}
 			}
 		}
 		echo "</div>";
@@ -399,27 +430,29 @@ class ProductTable extends Table{
 					<div class='col-2'><b>Вес</b></div>
 					<div class='col-2'><b>Цена</b></div>
 				</div>";
-		$brands = $this->get_table_from_brand_and_category_select(
-			$this->filtration_from_brand_and_category_select[0],
-			$this->filtration_from_brand_and_category_select[1]);
-		if($brands->num_rows > 0){
-			while($row = $brands->fetch_assoc()){
-				echo "
-					<div class='row row-table'>
-						<div class='col-3'>".$row["name_product"]."</div>
-						<div class='col-3'>".$row["name_color"]."</div>
-						<div class='col-2'>".$row["name_category"]."</div>
-						<div class='col-2'>".$row["weight"]."</div>
-						<div class='col-2'>".$row["price_product"]."</div>
-					</div>";
+		if ($this->POST['submit'] == 'Фильтровать по бренду и категории из списка'){
+			$brands = $this->get_table_from_brand_and_category_select(
+				$this->filtration_from_brand_and_category_select[0],
+				$this->filtration_from_brand_and_category_select[1]);
+			if($brands->num_rows > 0){
+				while($row = $brands->fetch_assoc()){
+					echo "
+						<div class='row row-table'>
+							<div class='col-3'>".$row["name_product"]."</div>
+							<div class='col-3'>".$row["name_color"]."</div>
+							<div class='col-2'>".$row["name_category"]."</div>
+							<div class='col-2'>".$row["weight"]."</div>
+							<div class='col-2'>".$row["price_product"]."</div>
+						</div>";
+				}
 			}
 		}
 		echo "</div>";
 	}
 
-	public function get_table_from_price($price){
+	public function get_table_from_price($price = -1){
 		$connection = $this->createConnection();
-		return $connection->query("
+		$query =  $connection->query("
 			SELECT 
 				product.id_product, product.name_product, product.weight, product.price_product, 
 				brand.name_brand, color.name_color, category.name_category 
@@ -428,25 +461,38 @@ class ProductTable extends Table{
 			and product.id_category = category.id_category
 			and product.id_color = color.id_color
 			and product.price_product <= $price");
+		if ($query->num_rows == 0){
+			echo "<h3 class='error'>Записи не найдены</h3>";
+		}
+		return $query;
 	}
 
-	public function get_table_from_brand_and_category($brand, $category){
+	public function get_table_from_brand_and_category($brand = null, $category = null){
+		if (!$brand and !$category){
+			echo "<h3 class='error'> Заполниите хотябы одно поле для фильтрации!<h3>";
+			return;
+		}
 		$connection = $this->createConnection();
-		return $connection->query("
+		$brand_condition_string    = " and brand.name_brand RLIKE '$brand'" or "";
+		$category_condition_string = " and category.name_category RLIKE '$category'" or "";
+		$condition_stirng = $brand_condition_string.$category_condition_string;
+		$query = $connection->query("
 			SELECT 
 				product.id_product, product.name_product, product.weight, product.price_product, 
 				brand.name_brand, color.name_color, category.name_category 
 			FROM cosmetic_shop.product, cosmetic_shop.brand, cosmetic_shop.color, cosmetic_shop.category
 			where product.id_brand = brand.id_brand
 			and product.id_category = category.id_category
-			and product.id_color = color.id_color
-			and name_brand RLIKE '$brand'
-			and name_category RLIKE '$category'");
+			and product.id_color = color.id_color".$condition_stirng);
+		if ($query->num_rows == 0) {
+			echo "<h3 class='error'>Записи не найдены</h3>";
+		}
+		return 	$query;
 	}
 
 	public function get_table_from_brand_and_category_select($brand, $category){
 		$connection = $this->createConnection();
-		return $connection->query("
+		$query = $connection->query("
 			SELECT 
 				product.id_product, product.name_product, product.weight, product.price_product, 
 				brand.name_brand, color.name_color, category.name_category 
@@ -456,11 +502,15 @@ class ProductTable extends Table{
 			and product.id_color = color.id_color
 			and product.id_brand = '$brand'
 			and category.id_category = '$category'");
+		if ($query->num_rows == 0){
+			echo "<h3 class='error'>Записи не найдены</h3>";
+		}
+		return $query;
 	}
 
 	public function get_table_from_brand_select($brand){
 		$connection = $this->createConnection();
-		return $connection->query("
+		$query = $connection->query("
 			SELECT 
 				product.id_product, product.name_product, product.weight, product.price_product, 
 				brand.name_brand, color.name_color, category.name_category 
@@ -469,11 +519,19 @@ class ProductTable extends Table{
 			and product.id_category = category.id_category
 			and product.id_color = color.id_color
 			and product.id_brand = '$brand'");
+		if ($query->num_rows == 0){
+			echo "<h3 class='error'>Записи не найдены</h3>";
+		}
+		return $query;
 	}
 
-	public function get_table_from_category($category){
+	public function get_table_from_category($category = null){
+		if (!$category){
+			echo "<h3 class='error'> Заполниите поле для фильтрации!<h3>";
+			return;
+		}
 		$connection = $this->createConnection();
-		return $connection->query("
+		$query = $connection->query("
 			SELECT 
 				product.id_product, product.name_product, product.weight, product.price_product, 
 				brand.name_brand, color.name_color, category.name_category 
@@ -481,12 +539,20 @@ class ProductTable extends Table{
 			where product.id_brand = brand.id_brand
 			and product.id_category = category.id_category
 			and product.id_color = color.id_color
-			and name_category RLIKE '$category'");
+			and category.name_category RLIKE '$category'");
+		if ($query->num_rows == 0){
+			echo "<h3 class='error'>Записи не найдены</h3>";
+		}
+		return $query;
 	}
 
-	public function get_table_from_name($name){
+	public function get_table_from_name($name = null){
+		if (!$name){
+			echo "<h3 class='error'> Заполниите поле для фильтрации!<h3>";
+			return;
+		}
 		$connection = $this->createConnection();
-		return $connection->query("
+		$query = $connection->query("
 			SELECT 
 				product.id_product, product.name_product, product.weight, product.price_product, 
 				brand.name_brand, color.name_color, category.name_category 
@@ -494,7 +560,11 @@ class ProductTable extends Table{
 			where product.id_brand = brand.id_brand
 			and product.id_category = category.id_category
 			and product.id_color = color.id_color
-			and name_product RLIKE '$name'");
+			and product.name_product RLIKE '$name'");
+		if ($query->num_rows == 0){
+			echo "<h3 class='error'>Записи не найдены</h3>";
+		}
+		return $query;
 	}
 
 	

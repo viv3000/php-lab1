@@ -1,6 +1,7 @@
 <?php
 	include_once('../tables/ProductTable.php');
 	$table = new ProductTable("prod", "id_prod");
+	$table->POST = $_POST;
 	if (isset($_POST['submit'])){
 		switch($_POST['submit']){
 			case "Добавить":
@@ -23,6 +24,11 @@
 				break;
 			case "Фильтровать по цене":
 				$table->filtration_from_price = $_POST['filtration-price'];
+				break;
+			case "Фильтровать по бренду и категории":
+				$table->filtration_from_brand_and_category = array(
+					$_POST['filtration-brand-and-category-brand'], 
+					$_POST['filtration-brand-and-category-category']);
 				break;
 			case "Фильтровать по бренду и категории из списка":
 				$table->filtration_from_brand_and_category_select = array(
