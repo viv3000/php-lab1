@@ -4,7 +4,7 @@ include_once('ProductTable.php');
 include_once('ConsultantTable.php');
 
 class ProdTable extends Table{
-	
+	public $POST;
 	public $filtration_from_FIO = '';
 	public $filtration_from_date_start = '0000-00-00';
 	public $filtration_from_date_end = '9999-11-11';
@@ -66,7 +66,7 @@ class ProdTable extends Table{
 
 	public function create_page($sort_field = null){
 		echo '
-			<form method="get" action="">
+			<form method="POST" action="">
 				<div class="form-group">
 					<label for="data_prod">Дата</label>
 					<input type="date" class="form-control" id="data_prod" name="data_prod">
@@ -99,7 +99,7 @@ class ProdTable extends Table{
 		';
 		echo "
 			</form>
-			<form action='' method='GET'>
+			<form action='' method='POST'>
 				<select name='sort-field' class='btn'>
 					<option>Название товара</option>
 					<option>ФИО консультанта</option>
@@ -140,12 +140,11 @@ class ProdTable extends Table{
 			<table class="table">
 					<thead>
 					<tr>
-						<th scope="col">id_prod</th>
-						<th scope="col">data_prod</th>
-						<th scope="col">time_prod</th>
-						<th scope="col">kol</th>
-						<th scope="col">consultant_fio</th>
-						<th scope="col">name_product</th>
+						<th scope="col">Дата продажи</th>
+						<th scope="col">Время продажи</th>
+						<th scope="col">Обьем</th>
+						<th scope="col">ФИО консультанта</th>
+						<th scope="col">Продукт</th>
 					</tr>
 					</thead>
 					<tbody>';
@@ -154,7 +153,6 @@ class ProdTable extends Table{
 			while($row = $brands->fetch_assoc()){
 				echo '
 					<tr>
-						<td>'.$row["id_prod"].'</td>
 						<td>'.$row["data_prod"].'</td>
 						<td>'.$row["time_prod"].'</td>
 						<td>'.$row["kol"].'</td>
@@ -189,7 +187,7 @@ class ProdTable extends Table{
 
 	public function create_filtration_block_FIO(){
 		echo "
-			<form class='form-filtration' method='get' action=''>
+			<form class='form-filtration' method='POST' action=''>
 				<div class='form-group'>
 					<label for=''>ФИО консультанта</label>
 					<input type='text' class='form-control' id='filtration-fio' name='filtration-fio'>
@@ -206,24 +204,30 @@ class ProdTable extends Table{
 					<div class='col-2'><b>Дата продажи</b></div>
 					<div class='col-2'><b>Количество</b></div>
 				</div>";
-		$prods = $this->get_table_from_FIO($this->filtration_from_FIO);
-		if($prods->num_rows > 0){
-			while($row = $prods->fetch_assoc()){
-				echo "
-					<div class='row row-table'>
-						<div class='col-3'>".$row["consultant_fio"]."</div>
-						<div class='col-3'>".$row["name_product"]."</div>
-						<div class='col-2'>".$row["data_prod"]."</div>
-						<div class='col-2'>".$row["kol"]."</div>
-					</div>";
+		if ($this->POST['submit'] == 'Фильтровать по ФИО консультанта'){
+			$prods = $this->get_table_from_FIO($this->filtration_from_FIO);
+			if($prods->num_rows > 0){
+				while($row = $prods->fetch_assoc()){
+					echo "
+						<div class='row row-table'>
+							<div class='col-3'>".$row["consultant_fio"]."</div>
+							<div class='col-3'>".$row["name_product"]."</div>
+							<div class='col-2'>".$row["data_prod"]."</div>
+							<div class='col-2'>".$row["kol"]."</div>
+						</div>";
+				}
 			}
 		}
 		echo "</div>";
 	}
 
-	public function get_table_from_FIO($fio){
+	public function get_table_from_FIO($fio = null){
+		if (!$fio){
+			echo "<h3 class='error'> Заполните поле для фильтрации!<h3>";
+			return;
+		}
 		$connection = $this->createConnection();
-		return $connection->query("
+		$query = $connection->query("
 			SELECT 
 				prod.id_prod, prod.data_prod, prod.time_prod, prod.kol, 
 				consultant.consultant_fio, 
@@ -232,12 +236,16 @@ class ProdTable extends Table{
 			WHERE prod.id_product = product.id_product
 			AND   prod.id_consultant = consultant.id_consultant
 			AND   consultant.consultant_fio RLIKE '$fio'");
+		if ($query->num_rows == 0){
+			echo "<h3 class='error'>Записи не найдены</h3>";
+		}
+		return $query;
 	}
 
 
 	public function create_filtration_block_date(){
 		echo "
-			<form class='form-filtration' method='get' action=''>
+			<form class='form-filtration' method='POST' action=''>
 				<div class='form-group'>
 					<label for=''>Дата начала</label>
 					<input type='date' class='form-control' id='filtration-date-start' name='filtration-date-start'>
@@ -259,20 +267,19 @@ class ProdTable extends Table{
 					<div class='col-2'><b>Цена товара</b></div>
 					<div class='col-2'><b>Количество</b></div>
 				</div>";
-		$prods = $this->get_table_from_date($this->filtration_from_date_start, $this->filtration_from_date_end);
-		if ($this->filtration_from_date_start > $this->filtration_from_date_end){
-			echo "<h3 class='error'>Дата начала должна быть меньше чем дата конца!</h3> <div/>";
-			return;
-		}else if($prods->num_rows > 0){
-			while($row = $prods->fetch_assoc()){
-				echo "
-					<div class='row row-table'>
-						<div class='col-3'>".$row["consultant_fio"]."</div>
-						<div class='col-3'>".$row["name_product"]."</div>
-						<div class='col-2'>".$row["data_prod"]."</div>
-						<div class='col-2'>".$row["price_product"]."</div>
-						<div class='col-2'>".$row["kol"]."</div>
-					</div>";
+		if ($this->POST['submit'] == 'Фильтровать по дате'){
+			$prods = $this->get_table_from_date($this->filtration_from_date_start, $this->filtration_from_date_end);
+			if($prods->num_rows > 0){
+				while($row = $prods->fetch_assoc()){
+					echo "
+						<div class='row row-table'>
+							<div class='col-3'>".$row["consultant_fio"]."</div>
+							<div class='col-3'>".$row["name_product"]."</div>
+							<div class='col-2'>".$row["data_prod"]."</div>
+							<div class='col-2'>".$row["price_product"]."</div>
+							<div class='col-2'>".$row["kol"]."</div>
+						</div>";
+				}
 			}
 		}
 		echo "</div>";
@@ -312,7 +319,7 @@ class ProdTable extends Table{
 
 	public function create_filtration_block_FIO_select(){
 		echo "
-			<form class='form-filtration' method='get' action=''>
+			<form class='form-filtration' method='POST' action=''>
 					<label for=''>ФИО консультанта</label>";
 			$this->create_FIO_select("filtration-fio-select");
 		echo "
@@ -327,16 +334,18 @@ class ProdTable extends Table{
 					<div class='col-2'><b>Дата продажи</b></div>
 					<div class='col-2'><b>Количество</b></div>
 				</div>";
-		$brands = $this->get_table_from_FIO_select($this->filtration_from_FIO_select);
-		if($brands->num_rows > 0){
-			while($row = $brands->fetch_assoc()){
-				echo "
-					<div class='row row-table'>
-						<div class='col-3'>".$row["name_product"]."</div>
-						<div class='col-3'>".$row["name_category"]."</div>
-						<div class='col-2'>".$row["data_prod"]."</div>
-						<div class='col-2'>".$row["kol"]."</div>
-					</div>";
+		if ($this->POST['submit'] == 'Фильтровать по ФИО консультанта из списка'){
+			$brands = $this->get_table_from_FIO_select($this->filtration_from_FIO_select);
+			if($brands->num_rows > 0){
+				while($row = $brands->fetch_assoc()){
+					echo "
+						<div class='row row-table'>
+							<div class='col-3'>".$row["name_product"]."</div>
+							<div class='col-3'>".$row["name_category"]."</div>
+							<div class='col-2'>".$row["data_prod"]."</div>
+							<div class='col-2'>".$row["kol"]."</div>
+						</div>";
+				}
 			}
 		}
 		echo "</div>";
@@ -344,7 +353,7 @@ class ProdTable extends Table{
 
 	public function create_filtration_block_name_select(){
 		echo "
-			<form class='form-filtration' method='get' action=''>
+			<form class='form-filtration' method='POST' action=''>
 					<label for=''>Название товара</label>";
 			$this->create_name_select("filtration-name-select");
 		echo "
@@ -359,24 +368,30 @@ class ProdTable extends Table{
 					<div class='col-2'><b>Дата продажи</b></div>
 					<div class='col-2'><b>Количество</b></div>
 				</div>";
-		$brands = $this->get_table_from_name_select($this->filtration_from_name_select);
-		if($brands->num_rows > 0){
-			while($row = $brands->fetch_assoc()){
-				echo "
-					<div class='row row-table'>
-						<div class='col-3'>".$row["name_product"]."</div>
-						<div class='col-3'>".$row["consultant_fio"]."</div>
-						<div class='col-2'>".$row["data_prod"]."</div>
-						<div class='col-2'>".$row["kol"]."</div>
-					</div>";
+		if ($this->POST['submit'] == 'Фильтровать по названию товара из списка'){
+			$brands = $this->get_table_from_name_select($this->filtration_from_name_select);
+			if($brands->num_rows > 0){
+				while($row = $brands->fetch_assoc()){
+					echo "
+						<div class='row row-table'>
+							<div class='col-3'>".$row["name_product"]."</div>
+							<div class='col-3'>".$row["consultant_fio"]."</div>
+							<div class='col-2'>".$row["data_prod"]."</div>
+							<div class='col-2'>".$row["kol"]."</div>
+						</div>";
+				}
 			}
 		}
 		echo "</div>";
 	}
 
-	public function get_table_from_FIO_select($fio){
+	public function get_table_from_FIO_select($fio = null){
+		if (!$fio){
+			echo "<h3 class='error'> Заполните поле для фильтрации!<h3>";
+			return;
+		}
 		$connection = $this->createConnection();
-		return $connection->query("
+		$query = $connection->query("
 			SELECT 
 				prod.id_prod, prod.data_prod, prod.time_prod, prod.kol, 
 				consultant.consultant_fio, 
@@ -387,11 +402,19 @@ class ProdTable extends Table{
 			AND   prod.id_consultant = consultant.id_consultant
             and   category.id_category = product.id_category
 			AND   prod.id_consultant = '$fio'");
+		if ($query->num_rows == 0){
+			echo "<h3 class='error'>Записи не найдены</h3>";
+		}
+		return $query;
 	}
 
-	public function get_table_from_name_select($name){
+	public function get_table_from_name_select($name = null){
+		if (!$name){
+			echo "<h3 class='error'> Заполните поле для фильтрации!<h3>";
+			return;
+		}
 		$connection = $this->createConnection();
-		return $connection->query("
+		$query = $connection->query("
 			SELECT 
 				prod.id_prod, prod.data_prod, prod.time_prod, prod.kol, 
 				consultant.consultant_fio, 
@@ -400,11 +423,23 @@ class ProdTable extends Table{
 			WHERE prod.id_product = product.id_product
 			AND   prod.id_consultant = consultant.id_consultant
 			AND   prod.id_product = '$name'");
+		if ($query->num_rows == 0){
+			echo "<h3 class='error'>Записи не найдены</h3>";
+		}
+		return $query;
 	}
 
-	public function get_table_from_date($date_start, $date_end){
+	public function get_table_from_date($date_start = null, $date_end = null){
+		if ($date_start == '' or $date_end == ''){
+			echo "<h3 class='error'> Заполните все поля для фильтрации!<h3>";
+			return;
+		}
+		if ($date_start > $date_end){
+			echo "<h3 class='error'>Дата начала должна быть меньше чем дата конца!</h3>";
+			return;
+		}
 		$connection = $this->createConnection();
-		return $connection->query("
+		$query = $connection->query("
 			SELECT 
 				prod.id_prod, prod.data_prod, prod.time_prod, prod.kol, 
 				consultant.consultant_fio, 
@@ -414,6 +449,10 @@ class ProdTable extends Table{
 			AND   prod.id_consultant = consultant.id_consultant
 			AND   prod.data_prod > '$date_start'
 			AND   prod.data_prod < '$date_end'");
+		if ($query->num_rows == 0){
+			echo "<h3 class='error'>Записи не найдены</h3>";
+		}
+		return $query;
 	}
 
 	public function create_select(){

@@ -6,7 +6,6 @@
 		switch($_POST['submit']){
 			case "Добавить":
 				$file = base64_encode(file_get_contents(($_FILES['image']['tmp_name'])));
-				var_dump($file);
 				$table->insert($_POST["name_product"], $_POST["id_brand"], $_POST["id_category"], $_POST["id_color"], $_POST["weight"], $_POST["price_product"], $file);
 				break;
 			case "Изменить":
