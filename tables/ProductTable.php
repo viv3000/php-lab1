@@ -450,7 +450,11 @@ class ProductTable extends Table{
 		echo "</div>";
 	}
 
-	public function get_table_from_price($price = -1){
+	public function get_table_from_price($price = null){
+		if (!$price and $price!=0){
+			echo "<h3 class='error'> Заполните поле для фильтрации!<h3>";
+			return;
+		}
 		$connection = $this->createConnection();
 		$query =  $connection->query("
 			SELECT 
@@ -469,7 +473,7 @@ class ProductTable extends Table{
 
 	public function get_table_from_brand_and_category($brand = null, $category = null){
 		if (!$brand and !$category){
-			echo "<h3 class='error'> Заполниите хотябы одно поле для фильтрации!<h3>";
+			echo "<h3 class='error'> Заполните хотябы одно поле для фильтрации!<h3>";
 			return;
 		}
 		$connection = $this->createConnection();
@@ -527,7 +531,7 @@ class ProductTable extends Table{
 
 	public function get_table_from_category($category = null){
 		if (!$category){
-			echo "<h3 class='error'> Заполниите поле для фильтрации!<h3>";
+			echo "<h3 class='error'> Заполните поле для фильтрации!<h3>";
 			return;
 		}
 		$connection = $this->createConnection();
@@ -548,7 +552,7 @@ class ProductTable extends Table{
 
 	public function get_table_from_name($name = null){
 		if (!$name){
-			echo "<h3 class='error'> Заполниите поле для фильтрации!<h3>";
+			echo "<h3 class='error'> Заполните поле для фильтрации!<h3>";
 			return;
 		}
 		$connection = $this->createConnection();
