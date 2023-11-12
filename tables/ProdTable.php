@@ -4,7 +4,7 @@ include_once('ProductTable.php');
 include_once('ConsultantTable.php');
 
 class ProdTable extends Table{
-	public $POST;
+	public $POST = array("submit" => '');
 	public $filtration_from_FIO = '';
 	public $filtration_from_date_start = '0000-00-00';
 	public $filtration_from_date_end = '9999-11-11';

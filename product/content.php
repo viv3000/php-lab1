@@ -1,8 +1,8 @@
 <?php
 	include_once('../tables/ProductTable.php');
 	$table = new ProductTable("prod", "id_prod");
-	$table->POST = $_POST;
 	if (isset($_POST['submit'])){
+		$table->POST = $_POST;
 		switch($_POST['submit']){
 			case "Добавить":
 				$file = base64_encode(file_get_contents(($_FILES['image']['tmp_name'])));

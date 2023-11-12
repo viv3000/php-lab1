@@ -89,9 +89,8 @@ class ConsultantTable extends Table{
 			<table class="table">
 				  <thead>
 				    <tr>
-				      <th scope="col">'.$this->id_field.'</th>
-				      <th scope="col">'.$this->title_field.'</th>
-				      <th scope="col">consultant_fon</th>
+				      <th scope="col">ФИО</th>
+				      <th scope="col">Номер телефона</th>
 				    </tr>
 				  </thead>
 				  <tbody>';
@@ -100,7 +99,6 @@ class ConsultantTable extends Table{
 			while($row = $brands->fetch_assoc()){
 				echo '
 					<tr>
-				      <td>'.$row[$this->id_field   ].'</td>
 				      <td>'.$row[$this->title_field].'</td>
 				      <td>'.$row["consultant_fon"].'</td>
 					</tr>';

@@ -5,7 +5,7 @@ include_once('CategoryTable.php');
 include_once('Table.php');
 
 class ProductTable extends Table{
-	public $POST;
+	public $POST = array('submit' => '');
 	public $filtration_from_name = '';
 	public $filtration_from_category = '';
 	public $filtration_from_brand_and_category = array('','');

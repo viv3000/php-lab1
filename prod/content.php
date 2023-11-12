@@ -3,8 +3,8 @@
 	$table = new ProdTable("prod", "id_prod");
 	$name  = $table->title_field;
 	$id    = $table->id_field;
-	$table->POST = $_POST;
 	if (isset($_POST['submit'])){
+		$table->POST = $_POST;
 		switch($_POST['submit']){
 			case "Добавить":
 				$table->insert($_POST["id_product"], $_POST["id_consultant"], $_POST["data_prod"], $_POST["time_prod"], $_POST["kol"]);
