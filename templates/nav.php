@@ -1,6 +1,14 @@
-<nav>
-	<a href="/lab1/directorys">Справочники</a>
-	<a href="/lab1/prod">Продажи</a>
-	<a href="/lab1/product">Продукты</a>
-	<a href="/lab1/consultant">Консультанты</a>
-</nav>
+<?php
+include_once("../tables/AdminTable.php");
+
+$admin = $_SESSION['auth_admin'] == 'yes_auth' ? "<a href=\"/lab1/\">Панель администратора</a>" : "";
+echo "
+	<nav>
+		<a href=\"/lab1/directorys\">Справочники</a>
+		<a href=\"/lab1/prod\">Продажи</a>
+		<a href=\"/lab1/product\">Продукты</a>
+		<a href=\"/lab1/consultant\">Консультанты</a>
+		<a href=\"/lab1/login\">Войти</a>
+		$admin
+	</nav>";
+?>
