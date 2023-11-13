@@ -3,12 +3,34 @@ include_once('Table.php');
 
 class AdminTable extends Table{
 	public static $user;
+	public $table;
 	public function __construct(){
 		$this->table_name = "admin";
 		$this->id_field = "id_admin";
 	}
 
 	public function insert($login, $password='', $fio='', $email='', $phone='', $position=''){
+		$status = false;
+		if (!$login)    {
+			echo "<h3 class='error'> Необходимо ввести логин!</h3>"; 
+			$status = true;
+		}if (!$password) {
+			echo "<h3 class='error'> Необходимо ввести пароль!</h3>";
+			$status = true;
+		}if (!$fio) {
+			echo "<h3 class='error'> Необходимо ввести ФИО!</h3>";
+			$status = true;
+		}if (!$email) {
+			echo "<h3 class='error'> Необходимо ввести E-mail!</h3>";
+			$status = true;
+		}if (!$phone) {
+			echo "<h3 class='error'> Необходимо ввести номер телефона!</h3>";
+			$status = true;
+		}if (!$position) {
+			echo "<h3 class='error'> Необходимо ввести должност!</h3>";
+			$status = true;
+		}if ($status) return;
+
 		$connection = $this->createConnection();
 		if ($connection->connect_error){
 			echo '<h3 class="error">Не удалось подключиться к базе банных</h3>';
@@ -16,8 +38,8 @@ class AdminTable extends Table{
 			echo '<h3 class="error">Невозможно вставить дублирующую запись!</h3>';
 		} else $connection->query("INSERT INTO 
 				cosmetic_shop.admin
-					   (`login`,  `password`,  `fio`, `email`,  `phone`,  `position`) 
-				VALUES ('$login', '$password', '$fio' '$email', '$phone', '$position')");
+					   (`login`,  `password`,  `fio`,  `email`,  `phone`,  `position`) 
+				VALUES ('$login', '$password', '$fio', '$email', '$phone', '$position')");
 	}
 
 	public function update($id, $login, $password='', $fio='', $email='', $phone='', $position=''){
@@ -47,6 +69,14 @@ class AdminTable extends Table{
 			"
 		)->num_rows > 0;
 	}
+	public function check_access(){
+		$connection = $this->createConnection();
+		return $connection->query("
+			select * from `cosmetic_shop`.`admin`
+			where id_admin = '".$_SESSION['auth_admin_id']."'
+			"
+		)->num_rows > 0;
+	}
 
 	public function create_page(){
 		echo "
@@ -55,32 +85,32 @@ class AdminTable extends Table{
 					<h2>Введите данные</h2>
 					<div class='form-group'>
 						<label>Логин</label>
-						<input type='text' id='title' class='form-control' name='login'>
+						<input type='text' id='title' class='form-control' name='login' value='".$_POST['login']."'>
 					</div>
 					<br/>
 					<div class='form-group'>
 						<label>Пароль</label>
-						<input type='password' class='form-control' name='password'>
+						<input type='password' class='form-control' name='password' value='".$_POST['password']."'>
 					</div>
 					<br/>
 					<div class='form-group'>
 						<label>ФИО</label>
-						<input type='text' class='form-control' name='fio'>
+						<input type='text' class='form-control' name='fio' value='".$_POST['fio']."'>
 					</div>
 					<br/>
 					<div class='form-group'>
 						<label>Должность</label>
-						<input type='text' class='form-control' name='password'>
+						<input type='text' class='form-control' name='position' value='".$_POST['position']."'>
 					</div>
 					<br/>
 					<div class='form-group'>
 						<label>E-mail</label>
-						<input type='text' class='form-control' name='password'>
+						<input type='text' class='form-control' name='email' value='".$_POST['email']."'>
 					</div>
 					<br/>
 					<div class='form-group'>
 						<label>Номер телефона</label>
-						<input type='text' class='form-control' name='password'>
+						<input type='text' class='form-control' name='phone' value='".$_POST['phone']."'>
 					</div>
 				</div>
 				<br/>
@@ -90,10 +120,11 @@ class AdminTable extends Table{
 						<input type='submit' class='btn btn-primary' name='submit' value='Просмотр'>
 						<input type='submit' class='btn btn-primary' name='submit' value='Добавление'>
 						<input type='submit' class='btn btn-primary' name='submit' value='Изменение'>
-						<input type='submit' class='btn btn-primary' name='submit' value='Работа с приложениями'>
+						<input type='submit' class='btn btn-primary' name='submit' value='Работа с приложением'>
 					</div>
 				</div>
 			</form>
+			$this->table
 		";
 	}
 
@@ -112,7 +143,7 @@ class AdminTable extends Table{
 		}
 		echo "</select>";
 	}
-	
+
 	public function login($login, $password){
 		if ($login == '' or $password == ''){
 			echo "<h3 class='error'>Необходимо заполнить все поля!</h3>";
@@ -123,7 +154,7 @@ class AdminTable extends Table{
 			select * 
 			from cosmetic_shop.admin 
 			where login = '$login'
-			and password = md5('$password')"
+			and password = '$password'"
 		)->fetch_assoc();
 
 		if ($rows['login'] == null){
@@ -136,6 +167,40 @@ class AdminTable extends Table{
 
 			echo "<h3 class='coplite'>Вы вошли!</h3>";
 		}
+	}
+
+	public function view_table(){
+		$this->table = "
+			<table class=\"table\">
+					<thead>
+					<tr>
+						<th scope=\"col\">Логин</th>
+						<th scope=\"col\">Пароль</th>
+						<th scope=\"col\">ФИО</th>
+						<th scope=\"col\">Должность</th>
+						<th scope=\"col\">E-mail</th>
+						<th scope=\"col\">Номер телефона</th>
+					</tr>
+					</thead>
+					<tbody>";
+		$connection = $this->createConnection();
+		$admins = $connection->query("select * from cosmetic_shop.admin");
+		if($admins->num_rows > 0){
+			while($row = $admins->fetch_assoc()){
+				$this->table .= '
+					<tr>
+						<td>'.$row["login"].'</td>
+						<td>'.$row["password"].'</td>
+						<td>'.$row["fio"].'</td>
+						<td>'.$row["position"].'</td>
+						<td>'.$row["email"].'</td>
+						<td>'.$row["phone"].'</td>
+					</tr>';
+			}
+		}
+		$this->table .= '
+					</tbody>
+				</table>';
 	}
 
 	public function exit(){
