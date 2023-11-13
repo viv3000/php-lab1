@@ -4,12 +4,14 @@
 	if (isset($_POST['submit'])){
 		$table->POST = $_POST;
 		switch($_POST['submit']){
-			case 'Удалить':
-				$table->delete($table->get_id());
-				header("Location: ../login");
+			case 'Добавление':
+				$table->insert($_POST['login'], $_POST['password'], $_POST['fio'], $_POST['email'], $_POST['phone'], $_POST['position']);
 				break;
-			case 'Изменить':
-				$table->update($table->get_id(), $_POST['login'],$_POST['password'], $_POST['fio'], $_POST['email'], $_POST['phone'], $_POST['position']);
+			case 'Просмотр':
+				$table->view_table();
+				break;
+			case 'Изменение':
+				header("Location: ../edit_administrators");
 				break;
 			case 'Работа с приложением':
 				header("Location: ../");
@@ -23,7 +25,7 @@
 		echo "<h3 class='error'>У вас нет прав на просмотр этой страницы!</h3>";
 	}
 	else {
-		$table->create_page_edit();
+		$table->create_page();
 	}
 	echo "</main>";
 ?>

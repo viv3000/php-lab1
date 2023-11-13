@@ -8,6 +8,9 @@ class AdminTable extends Table{
 		$this->table_name = "admin";
 		$this->id_field = "id_admin";
 	}
+	public function get_id(){
+		return $_SESSION['auth_admin_id'];
+	}
 
 	public function insert($login, $password='', $fio='', $email='', $phone='', $position=''){
 		$status = false;
@@ -43,6 +46,28 @@ class AdminTable extends Table{
 	}
 
 	public function update($id, $login, $password='', $fio='', $email='', $phone='', $position=''){
+		$status = false;
+		var_dump($login);
+		if (!$login)    {
+			echo "<h3 class='error'> Необходимо ввести логин!</h3>"; 
+			$status = true;
+		}if (!$password) {
+			echo "<h3 class='error'> Необходимо ввести пароль!</h3>";
+			$status = true;
+		}if (!$fio) {
+			echo "<h3 class='error'> Необходимо ввести ФИО!</h3>";
+			$status = true;
+		}if (!$email) {
+			echo "<h3 class='error'> Необходимо ввести E-mail!</h3>";
+			$status = true;
+		}if (!$phone) {
+			echo "<h3 class='error'> Необходимо ввести номер телефона!</h3>";
+			$status = true;
+		}if (!$position) {
+			echo "<h3 class='error'> Необходимо ввести должность!</h3>";
+			$status = true;
+		}if ($status) return;
+
 		$connection = $this->createConnection();
 		if ($connection->connect_error){
 			echo '<h3 class="error">Не удалось подключиться к базе банных</h3>';
@@ -50,7 +75,8 @@ class AdminTable extends Table{
 			echo '<h3 class="error">Невозможно изменить несуществующую запись!</h3>';
 		} else if($this->have_duplicate($connection, $login)) {
 			echo '<h3 class="error">Невозможно вставить дублирующую запись!</h3>';
-		} else $connection->query("UPDATE 
+		} else {
+			$connection->query("UPDATE 
 				`cosmetic_shop`.`admin` 
 				SET  
 					`login`    = '$login',
@@ -60,15 +86,19 @@ class AdminTable extends Table{
 					`phone`    = '$phone',
 					`position` = '$position'
 				WHERE (`id_admin` = '".$id."')");
+			header("Location: ../login");
+		}
 	}
 
 	private function have_duplicate($connection, $login){
 		return $connection->query("
 			select * from `cosmetic_shop`.`admin`
 			where login = '$login'
+			and   login != '".$_SESSION['auth_admin_login']."'
 			"
 		)->num_rows > 0;
 	}
+
 	public function check_access(){
 		$connection = $this->createConnection();
 		return $connection->query("
@@ -77,6 +107,64 @@ class AdminTable extends Table{
 			"
 		)->num_rows > 0;
 	}
+
+	public function get_admin(){
+		$connection = $this->createConnection();
+		return $connection->query("
+			select * from `cosmetic_shop`.`admin`
+			where id_admin = '".$_SESSION['auth_admin_id']."'
+			"
+		)->fetch_assoc();
+	}
+	public function create_page_edit(){
+		echo "
+			<form class='admin-form' method='POST' action=''>
+				<div class='admin-form-input'>
+					<h2>Введите данные</h2>
+					<div class='form-group'>
+						<label>Логин</label>
+						<input type='text' id='title' class='form-control' name='login' value='".$this->get_admin()['login']."'>
+					</div>
+					<br/>
+					<div class='form-group'>
+						<label>Пароль</label>
+						<input type='password' class='form-control' name='password' value='".$this->get_admin()['password']."'>
+					</div>
+					<br/>
+					<div class='form-group'>
+						<label>ФИО</label>
+						<input type='text' class='form-control' name='fio' value='".$this->get_admin()['fio']."'>
+					</div>
+					<br/>
+					<div class='form-group'>
+						<label>Должность</label>
+						<input type='text' class='form-control' name='position' value='".$this->get_admin()['position']."'>
+					</div>
+					<br/>
+					<div class='form-group'>
+						<label>E-mail</label>
+						<input type='text' class='form-control' name='email' value='".$this->get_admin()['email']."'>
+					</div>
+					<br/>
+					<div class='form-group'>
+						<label>Номер телефона</label>
+						<input type='text' class='form-control' name='phone' value='".$this->get_admin()['phone']."'>
+					</div>
+				</div>
+				<br/>
+				<div class='admin-form-buttons'>
+					<h2>Выбирите действие</h2>
+					<div class='buttons'>
+						<input type='submit' class='btn btn-primary' name='submit' value='Изменить'>
+						<input type='submit' class='btn btn-primary' name='submit' value='Удалить'>
+						<input type='submit' class='btn btn-primary' name='submit' value='Работа с приложением'>
+					</div>
+				</div>
+			</form>
+		";
+	}
+
+
 
 	public function create_page(){
 		echo "
