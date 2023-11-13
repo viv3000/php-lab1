@@ -50,17 +50,49 @@ class AdminTable extends Table{
 
 	public function create_page(){
 		echo "
-			<form method='POST' action=''>
-				<h2>Введите логин и пароль</h2>
-				<div class='form-group'>
-					<input type='text' id='title' class='form-control' placeholder='Логин' name='login'>
+			<form class='admin-form' method='POST' action=''>
+				<div class='admin-form-input'>
+					<h2>Введите данные</h2>
+					<div class='form-group'>
+						<label>Логин</label>
+						<input type='text' id='title' class='form-control' name='login'>
+					</div>
+					<br/>
+					<div class='form-group'>
+						<label>Пароль</label>
+						<input type='password' class='form-control' name='password'>
+					</div>
+					<br/>
+					<div class='form-group'>
+						<label>ФИО</label>
+						<input type='text' class='form-control' name='fio'>
+					</div>
+					<br/>
+					<div class='form-group'>
+						<label>Должность</label>
+						<input type='text' class='form-control' name='password'>
+					</div>
+					<br/>
+					<div class='form-group'>
+						<label>E-mail</label>
+						<input type='text' class='form-control' name='password'>
+					</div>
+					<br/>
+					<div class='form-group'>
+						<label>Номер телефона</label>
+						<input type='text' class='form-control' name='password'>
+					</div>
 				</div>
 				<br/>
-				<div class='form-group'>
-					<input type='password' class='form-control' name='password' placeholder='Пароль' onkeyup='emailFormat(this)'>
+				<div class='admin-form-buttons'>
+					<h2>Выбирите действие</h2>
+					<div class='buttons'>
+						<input type='submit' class='btn btn-primary' name='submit' value='Просмотр'>
+						<input type='submit' class='btn btn-primary' name='submit' value='Добавление'>
+						<input type='submit' class='btn btn-primary' name='submit' value='Изменение'>
+						<input type='submit' class='btn btn-primary' name='submit' value='Работа с приложениями'>
+					</div>
 				</div>
-				<br/>
-				<input type='submit' class='btn btn-primary' name='submit' value='Войти'>
 			</form>
 		";
 	}
