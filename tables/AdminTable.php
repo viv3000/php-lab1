@@ -86,6 +86,7 @@ class AdminTable extends Table{
 					`phone`    = '$phone',
 					`position` = '$position'
 				WHERE (`id_admin` = '".$id."')");
+			unset($_SESSION['auth_admin']);
 			header("Location: ../login");
 		}
 	}
@@ -116,6 +117,25 @@ class AdminTable extends Table{
 			"
 		)->fetch_assoc();
 	}
+
+	public function create_page_login(){
+		echo "
+			<form method='POST' action=''>
+					<div class='form-group'>
+						<label>Логин</label>
+						<input type='text' id='title' class='form-control' name='login'>
+					</div>
+					<br/>
+					<div class='form-group'>
+						<label>Пароль</label>
+						<input type='password' class='form-control' name='password'>
+					</div>
+					<br/>
+					<input type='submit' class='btn btn-primary' name='submit' value='Войти'>
+			</form>
+		";
+	}
+
 	public function create_page_edit(){
 		echo "
 			<form class='admin-form' method='POST' action=''>
@@ -247,13 +267,14 @@ class AdminTable extends Table{
 
 		if ($rows['login'] == null){
 			echo "<h3 class='error'>Неверный логин или пароль</h3>";
+			unset($_SESSION['auth_admin']);
 		}else{
 			$_SESSION['auth_admin'] = 'yes_auth';
 			$_SESSION['auth_admin_id'] = $rows['id_admin'];
 			$_SESSION['auth_admin_login'] = $login;
 			$_SESSION['admin_role'] = $rows['position'];
 
-			echo "<h3 class='coplite'>Вы вошли!</h3>";
+			header("Location: ../administrators");
 		}
 	}
 

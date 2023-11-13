@@ -7,6 +7,7 @@
 			case 'Удалить':
 				$table->delete($table->get_id());
 				header("Location: ../login");
+				unset($_SESSION['auth_admin']);
 				break;
 			case 'Изменить':
 				$table->update($table->get_id(), $_POST['login'],$_POST['password'], $_POST['fio'], $_POST['email'], $_POST['phone'], $_POST['position']);
